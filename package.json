@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/GraceWXT/tinyapp/issues"
   },
-  "homepage": "https://github.com/GraceWXT/tinyapp#readme"
+  "homepage": "https://github.com/GraceWXT/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.17.3"
+  }
 }
