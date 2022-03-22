@@ -12,10 +12,10 @@ const urlDatabase = {
 };
 
 const generateRandomString = function(length) {
-  const chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const charset = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
   let string = "";
   for (let i = 0; i < length; i ++) {
-    string += chars[Math.floor(Math.random() * chars.length)];
+    string += charset[Math.floor(Math.random() * charset.length)];
   }
   return string;
 };
