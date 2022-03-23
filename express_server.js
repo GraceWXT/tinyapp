@@ -45,9 +45,8 @@ app.get("/", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  const templateVars = {
-    username: req.cookies["username"]
-  };
+  const user = users[req.cookies["user_id"]];
+  const templateVars = { user };    //Need to pass user to all the templates that includes the header partial
   res.render("register", templateVars);
 });
 
@@ -61,18 +60,19 @@ app.post("/register", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.cookie("username", `${req.body.username}`);
+  res.cookie("username", `${req.body.username}`); //need to update this
   res.redirect("/urls");
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect("/urls");
 });
 
 app.get("/urls", (req, res) => {
+  const user = users[req.cookies["user_id"]];
   const templateVars = {
-    username: req.cookies["username"],
+    user,
     urlDatabase
   };
   res.render("urls_index", templateVars);
@@ -85,15 +85,15 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  const templateVars = {
-    username: req.cookies["username"]
-  };
+  const user = users[req.cookies["user_id"]];
+  const templateVars = { user };
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
+  const user = users[req.cookies["user_id"]];
   const templateVars = {
-    username: req.cookies["username"],
+    user,
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL]
   };
@@ -111,9 +111,10 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.post("/urls/:shortURL", (req, res) => {
+  const user = users[req.cookies["user_id"]];
   urlDatabase[req.params.shortURL] = req.body.longURL;
   const templateVars = {
-    username: req.cookies["username"],
+    user,
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL]
   };
