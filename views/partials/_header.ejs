@@ -13,8 +13,7 @@
     <% if (user) { %>
       <form class="form-inline" action="/logout" method="POST">
         <div class="form-group mb-2, mx-auto"> 
-          <span class="align-middle" style="margin: 1em">Logged in As <%= user.email %></span>
-          <button type="submit" class="btn btn-warning">Logout</button>
+          <button type="submit" class="btn btn-warning" style="margin: 0.5em">Log out</button>
         </div>
       </form>
     <% } else { %>
