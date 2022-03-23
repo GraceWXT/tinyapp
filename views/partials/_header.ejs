@@ -18,10 +18,14 @@
         </div>
       </form>
     <% } else { %>
-      <form class="form-inline" action="/login" method="POST">
+      <form class="form-inline" action="/login" method="GET">
         <div class="form-group mb-2, mx-auto">
-          <input class="form-control" type="text" name="email" placeholder="email" style="width: 150px; margin: 1em">
-          <button type="submit" class="btn btn-warning">Login</button>
+          <button type="submit" class="btn btn-light" style="margin: 0.5em">Log in</button>
+        </div>
+      </form>
+      <form class="form-inline" action="/register" method="GET">
+        <div class="form-group mb-2, mx-auto">
+          <button type="submit" class="btn btn-warning" style="margin: 0.5em">Register</button>
         </div>
       </form>
     <% } %>
