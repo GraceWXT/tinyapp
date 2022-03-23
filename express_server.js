@@ -44,6 +44,15 @@ const generateRandomString = function(length) {
   return string;
 };
 
+const emailExistsInUsers = function(email) {
+  for (let userID in users) {
+    if (email === users[userID].email) {
+      return true;
+    }
+  }
+  return false;
+};
+
 // Routes
 // Homepage
 app.get("/", (req, res) => {
