@@ -5,9 +5,12 @@ const app = express();
 const PORT = 8080; // default port 8080
 
 app.set("view engine", "ejs");
+
+// Middleware
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
+// Database
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -21,6 +24,7 @@ const users = {
   }
 };
 
+// Helper functions
 class User {
 
   constructor(id, email, password) {
@@ -40,6 +44,8 @@ const generateRandomString = function(length) {
   return string;
 };
 
+// Routes
+// Homepage
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
