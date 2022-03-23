@@ -58,6 +58,9 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
+  if (req.body.email === "" || req.body.password === "") {
+    return res.sendStatus(400);
+  }
   const userID = generateRandomString(4);
   const newUser = new User(userID, req.body.email, req.body.password);
   users[userID] = newUser;
