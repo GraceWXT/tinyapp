@@ -83,12 +83,19 @@ app.post("/register", (req, res) => {
   res.redirect(`/urls`);
 });
 
-// User Login & Logout
+// User Login
+app.get("/login", (req, res) => {
+  const user = users[req.cookies["user_id"]];
+  const templateVars = { user };
+  res.render("login", templateVars);
+});
+
 app.post("/login", (req, res) => {
   res.cookie("username", `${req.body.username}`); //need to update this
   res.redirect("/urls");
 });
 
+// User Logout
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
   res.redirect("/urls");
