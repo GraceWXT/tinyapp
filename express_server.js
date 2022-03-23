@@ -55,12 +55,19 @@ const findUserByEmail = function(email) {
 // Routes
 // Homepage
 app.get("/", (req, res) => {
+  const user = users[req.cookies["user_id"]];
+  if (user) {
+    return res.redirect("/urls")
+  }
   res.send("Hello!");
 });
 
 // User Registration
 app.get("/register", (req, res) => {
   const user = users[req.cookies["user_id"]];
+  if (user) {
+    return res.redirect("/urls")
+  }
   const templateVars = { user };    //Need to pass user to all the templates that includes the header partial
   res.render("register", templateVars);
 });
@@ -79,12 +86,15 @@ app.post("/register", (req, res) => {
   users[userID] = newUser;
   // console.log(users);   // To test the users object is properly being appended to
   res.cookie("user_id", `${userID}`);
-  res.redirect(`/urls`);
+  res.redirect("/urls");
 });
 
 // User Login
 app.get("/login", (req, res) => {
   const user = users[req.cookies["user_id"]];
+  if (user) {
+    return res.redirect("/urls")
+  }
   const templateVars = { user };
   res.render("login", templateVars);
 });
