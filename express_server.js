@@ -59,7 +59,7 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-// User Registration 
+// User Registration
 app.get("/register", (req, res) => {
   const user = users[req.cookies["user_id"]];
   const templateVars = { user };    //Need to pass user to all the templates that includes the header partial
@@ -67,11 +67,16 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  if (req.body.email === "" || req.body.password === "") {
+  const inputEmail = req.body.email;
+  const inputPassword = req.body.password;
+  if (inputEmail === "" || inputPassword === "") {
+    return res.sendStatus(400);
+  }
+  if (emailExistsInUsers(inputEmail)) {
     return res.sendStatus(400);
   }
   const userID = generateRandomString(4);
-  const newUser = new User(userID, req.body.email, req.body.password);
+  const newUser = new User(userID, inputEmail, inputPassword);
   users[userID] = newUser;
   // console.log(users);   // To test the users object is properly being appended to
   res.cookie("user_id", `${userID}`);
