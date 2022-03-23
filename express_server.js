@@ -97,10 +97,10 @@ app.post("/login", (req, res) => {
     return res.sendStatus(403);
   }
   const expectedPassword = user.password;
-  if (!inputPassword === expectedPassword) {
+  if (inputPassword !== expectedPassword) {
     return res.sendStatus(403);
   }
-  res.cookie("user_id", `${user.id}`); 
+  res.cookie("user_id", `${user.id}`);
   res.redirect("/urls");
 });
 
