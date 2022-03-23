@@ -44,13 +44,12 @@ const generateRandomString = function(length) {
   return string;
 };
 
-const emailExistsInUsers = function(email) {
-  for (let userID in users) {
-    if (email === users[userID].email) {
-      return true;
+const findUserByEmail = function(email) {
+  for (let id in users) {
+    if (email === users[id].email) {
+      return users[id];
     }
   }
-  return false;
 };
 
 // Routes
@@ -72,7 +71,7 @@ app.post("/register", (req, res) => {
   if (inputEmail === "" || inputPassword === "") {
     return res.sendStatus(400);
   }
-  if (emailExistsInUsers(inputEmail)) {
+  if (findUserByEmail(inputEmail)) {
     return res.sendStatus(400);
   }
   const userID = generateRandomString(4);
@@ -91,7 +90,17 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.cookie("username", `${req.body.username}`); //need to update this
+  const inputEmail = req.body.email;
+  const inputPassword = req.body.password;
+  const user = findUserByEmail(inputEmail);
+  if (!user) {
+    return res.sendStatus(403);
+  }
+  const expectedPassword = user.password;
+  if (!inputPassword === expectedPassword) {
+    return res.sendStatus(403);
+  }
+  res.cookie("user_id", `${user.id}`); 
   res.redirect("/urls");
 });
 
