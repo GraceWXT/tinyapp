@@ -13,13 +13,23 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-const users = { 
+const users = {
   "admin": {
-    id: "admin", 
-    email: "a@a.com", 
+    id: "admin",
+    email: "a@a.com",
     password: "123"
   }
 };
+
+class User {
+
+  constructor(id, email, password) {
+    this.id = id;
+    this.email = email;
+    this.password = password;
+  }
+
+}
 
 const generateRandomString = function(length) {
   const charset = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -39,6 +49,15 @@ app.get("/register", (req, res) => {
     username: req.cookies["username"]
   };
   res.render("register", templateVars);
+});
+
+app.post("/register", (req, res) => {
+  const userID = generateRandomString(4);
+  const newUser = new User(userID, req.body.email, req.body.password);
+  users[userID] = newUser;
+  // console.log(users);   // To test the users object is properly being appended to
+  res.cookie("user_id", `${userID}`);
+  res.redirect(`/urls`);
 });
 
 app.post("/login", (req, res) => {
@@ -73,7 +92,7 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { 
+  const templateVars = {
     username: req.cookies["username"],
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL]
@@ -93,7 +112,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 app.post("/urls/:shortURL", (req, res) => {
   urlDatabase[req.params.shortURL] = req.body.longURL;
-  const templateVars = { 
+  const templateVars = {
     username: req.cookies["username"],
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL]
