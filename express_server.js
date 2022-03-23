@@ -13,6 +13,14 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = { 
+  "admin": {
+    id: "admin", 
+    email: "a@a.com", 
+    password: "123"
+  }
+};
+
 const generateRandomString = function(length) {
   const charset = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
   let string = "";
