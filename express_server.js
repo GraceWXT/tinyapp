@@ -53,7 +53,7 @@ const errMsg = {
     title: "Permission Denied",
     detail: "You don't have access to this content."
   }
-}
+};
 
 //
 // Helper functions
@@ -103,7 +103,42 @@ const urlsForUser = function(id) {
     }
   }
   return list;
-}
+};
+
+const handleError = function(errorType, res, user, shortUrlInReq = undefined) {
+  switch (errorType) {
+  case "notLoggedIn":
+    if (!user) {
+      const error = errMsg.notLoggedIn;
+      const templateVars = {
+        user,
+        error
+      };
+      return res.render("error", templateVars);
+    }
+    break;
+  case "shortURLnotExist":
+    if (!urlDatabase[shortUrlInReq]) {
+      const error = errMsg.shortURLnotExist;
+      const templateVars = {
+        user,
+        error
+      };
+      return res.render("error", templateVars);
+    }
+    break;
+  case "UrlNotOwned":
+    if (urlDatabase[shortUrlInReq].userID !== user.id) {
+      const error = errMsg.UrlNotOwned;
+      const templateVars = {
+        user,
+        error
+      };
+      return res.render("error", templateVars);
+    }
+    break;
+  }
+};
 //
 // Routes
 //
@@ -111,7 +146,7 @@ const urlsForUser = function(id) {
 app.get("/", (req, res) => {
   const user = users[req.cookies["user_id"]];
   if (user) {
-    return res.redirect("/urls")
+    return res.redirect("/urls");
   }
   res.send("Hello!");
 });
@@ -120,7 +155,7 @@ app.get("/", (req, res) => {
 app.get("/register", (req, res) => {
   const user = users[req.cookies["user_id"]];
   if (user) {
-    return res.redirect("/urls")
+    return res.redirect("/urls");
   }
   const templateVars = { user };    //Need to pass user to all the templates that includes the header partial
   res.render("register", templateVars);
@@ -147,7 +182,7 @@ app.post("/register", (req, res) => {
 app.get("/login", (req, res) => {
   const user = users[req.cookies["user_id"]];
   if (user) {
-    return res.redirect("/urls")
+    return res.redirect("/urls");
   }
   const templateVars = { user };
   res.render("login", templateVars);
@@ -177,14 +212,7 @@ app.post("/logout", (req, res) => {
 // Viewing the list of URLs
 app.get("/urls", (req, res) => {
   const user = users[req.cookies["user_id"]];
-  if (!user) {
-    const error = errMsg.notLoggedIn;
-    const templateVars = { 
-      user,
-      error
-    };
-    return res.render("error", templateVars)
-  }
+  handleError("notLoggedIn", res, user);
   const urlList = urlsForUser(user.id);
   const templateVars = {
     user,
@@ -195,7 +223,11 @@ app.get("/urls", (req, res) => {
 
 // Handling delete request of a certain URL in the list
 app.post("/urls/:shortURL/delete", (req, res) => {
+  const user = users[req.cookies["user_id"]];
+  handleError("notLoggedIn", res, user);
   const shortUrlInReq = req.params.shortURL;
+  handleError("shortURLnotExist", res, user, shortUrlInReq);
+  handleError("UrlNotOwned", res, user, shortUrlInReq);
   delete urlDatabase[shortUrlInReq];
   res.redirect("/urls");
 });
@@ -204,7 +236,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.get("/urls/new", (req, res) => {
   const user = users[req.cookies["user_id"]];
   if (!user) {
-    return res.redirect("/login")
+    return res.redirect("/login");
   }
   const templateVars = { user };
   res.render("urls_new", templateVars);
@@ -213,14 +245,7 @@ app.get("/urls/new", (req, res) => {
 // Generating Short URLs
 app.post("/urls", (req, res) => {
   const user = users[req.cookies["user_id"]];
-  if (!user) {
-    const error = errMsg.notLoggedIn;
-    const templateVars = { 
-      user,
-      error
-    };
-    return res.render("error", templateVars)
-  }
+  handleError("notLoggedIn", res, user);
   const shortURL = generateRandomString(6);
   const longURL = req.body.longURL;
   urlDatabase[shortURL] = new ShortURL(longURL, user.id);
@@ -231,31 +256,10 @@ app.post("/urls", (req, res) => {
 // View for a specific short URL & Updating form
 app.get("/urls/:shortURL", (req, res) => {
   const user = users[req.cookies["user_id"]];
-  if (!user) {
-    const error = errMsg.notLoggedIn;
-    const templateVars = { 
-      user,
-      error
-    };
-    return res.render("error", templateVars)
-  }
+  handleError("notLoggedIn", res, user);
   const shortUrlInReq = req.params.shortURL;
-  if (!urlDatabase[shortUrlInReq]) {
-    const error = errMsg.shortURLnotExist;
-    const templateVars = { 
-      user,
-      error
-    };
-    return res.render("error", templateVars)
-  }
-  if (urlDatabase[shortUrlInReq].userId !== user.id) {
-    const error = errMsg.UrlNotOwned;
-    const templateVars = { 
-      user,
-      error
-    };
-    return res.render("error", templateVars)
-  }
+  handleError("shortURLnotExist", res, user, shortUrlInReq);
+  handleError("UrlNotOwned", res, user, shortUrlInReq);
   const templateVars = {
     user,
     shortURL: shortUrlInReq,
@@ -267,28 +271,24 @@ app.get("/urls/:shortURL", (req, res) => {
 // Handling long URL update
 app.post("/urls/:shortURL", (req, res) => {
   const user = users[req.cookies["user_id"]];
+  handleError("notLoggedIn", res, user);
   const shortUrlInReq = req.params.shortURL;
+  handleError("shortURLnotExist", res, user, shortUrlInReq);
+  handleError("UrlNotOwned", res, user, shortUrlInReq);
   urlDatabase[shortUrlInReq].longURL = req.body.longURL;
   const templateVars = {
     user,
     shortURL: shortUrlInReq,
     longURL: urlDatabase[shortUrlInReq].longURL
   };
-  res.render("urls_show", templateVars);
+  res.render("urls_show", templateVars);   // final requirement is redirect?
 });
 
 // Redirecting to the corresponding long URL
 app.get("/u/:shortURL", (req, res) => {
+  const user = users[req.cookies["user_id"]];
   const shortUrlInReq = req.params.shortURL;
-  if (!urlDatabase[shortUrlInReq]) {
-    const user = users[req.cookies["user_id"]];
-    const error = errMsg.shortURLnotExist;
-    const templateVars = { 
-      user,
-      error
-    };
-    return res.render("error", templateVars)
-  }
+  handleError("shortURLnotExist", res, user, shortUrlInReq);
   const longURL = urlDatabase[shortUrlInReq].longURL;
   res.redirect(longURL);
 });
