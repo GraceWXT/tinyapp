@@ -45,6 +45,15 @@ class User {
 
 }
 
+class ShortURL {
+
+  constructor(longURL, userID) {
+    this.longURL = longURL;
+    this.userID = userID;
+  }
+
+}
+
 const generateRandomString = function(length) {
   const charset = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
   let string = "";
@@ -167,8 +176,10 @@ app.post("/urls", (req, res) => {
     return res.render("error", templateVars)
   }
   const shortURL = generateRandomString(6);
-  urlDatabase[shortURL] = req.body.longURL;  // saves the shortURL-longURL key-value pair to the urlDatabase object
-  res.redirect(`/urls/${shortURL}`);         // Respond with a redirect to /urls/:shortURL
+  const longURL = req.body.longURL;
+  urlDatabase[shortURL] = new ShortURL(longURL, user.id);
+  // console.log(urlDatabase); // To test the urlDatabse object is properly updated
+  res.redirect(`/urls/${shortURL}`);
 });
 
 // View for a specific short URL & Updating form
@@ -177,7 +188,7 @@ app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     user,
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL]
+    longURL: urlDatabase[req.params.shortURL].longURL
   };
   res.render("urls_show", templateVars);
 });
@@ -185,18 +196,18 @@ app.get("/urls/:shortURL", (req, res) => {
 // Handling long URL update
 app.post("/urls/:shortURL", (req, res) => {
   const user = users[req.cookies["user_id"]];
-  urlDatabase[req.params.shortURL] = req.body.longURL;
+  urlDatabase[req.params.shortURL].longURL = req.body.longURL;
   const templateVars = {
     user,
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL]
+    longURL: urlDatabase[req.params.shortURL].longURL
   };
   res.render("urls_show", templateVars);
 });
 
 // Redirecting to the corresponding long URL
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
 
