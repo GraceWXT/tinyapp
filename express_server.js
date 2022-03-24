@@ -1,16 +1,26 @@
+//
+// Dependencies
+//
 const express = require("express");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
-const app = express();
-const PORT = 8080; // default port 8080
 
+//
+// Config
+//
+const PORT = 8080;
+const app = express();
 app.set("view engine", "ejs");
 
+//
 // Middleware
+//
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
+//
 // Database
+//
 const urlDatabase = {
   "b2xVn2": {
     longURL: "http://www.lighthouselabs.ca",
@@ -41,7 +51,9 @@ const errMsg = {
   }
 }
 
+//
 // Helper functions
+//
 class User {
 
   constructor(id, email, password) {
@@ -78,7 +90,9 @@ const findUserByEmail = function(email) {
   }
 };
 
+//
 // Routes
+//
 // Homepage
 app.get("/", (req, res) => {
   const user = users[req.cookies["user_id"]];
