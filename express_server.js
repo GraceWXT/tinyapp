@@ -154,7 +154,10 @@ app.get("/urls/new", (req, res) => {
 app.post("/urls", (req, res) => {
   const user = users[req.cookies["user_id"]];
   if (!user) {
-    const templateVars = { errMsg };
+    const templateVars = { 
+      user,
+      errMsg
+    };
     return res.render("error", templateVars)
   }
   const shortURL = generateRandomString(6);
