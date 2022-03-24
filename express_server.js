@@ -158,7 +158,8 @@ app.get("/urls", (req, res) => {
 
 // Handling delete request of a certain URL in the list
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
+  const shortUrlInReq = req.params.shortURL;
+  delete urlDatabase[shortUrlInReq];
   res.redirect("/urls");
 });
 
@@ -193,10 +194,11 @@ app.post("/urls", (req, res) => {
 // View for a specific short URL & Updating form
 app.get("/urls/:shortURL", (req, res) => {
   const user = users[req.cookies["user_id"]];
+  const shortUrlInReq = req.params.shortURL;
   const templateVars = {
     user,
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL].longURL
+    shortURL: shortUrlInReq,
+    longURL: urlDatabase[shortUrlInReq].longURL
   };
   res.render("urls_show", templateVars);
 });
@@ -204,19 +206,20 @@ app.get("/urls/:shortURL", (req, res) => {
 // Handling long URL update
 app.post("/urls/:shortURL", (req, res) => {
   const user = users[req.cookies["user_id"]];
-  urlDatabase[req.params.shortURL].longURL = req.body.longURL;
+  const shortUrlInReq = req.params.shortURL;
+  urlDatabase[shortUrlInReq].longURL = req.body.longURL;
   const templateVars = {
     user,
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL].longURL
+    shortURL: shortUrlInReq,
+    longURL: urlDatabase[shortUrlInReq].longURL
   };
   res.render("urls_show", templateVars);
 });
 
 // Redirecting to the corresponding long URL
 app.get("/u/:shortURL", (req, res) => {
-  const shortURLinReq = req.params.shortURL;
-  if (!urlDatabase[shortURLinReq]) {
+  const shortUrlInReq = req.params.shortURL;
+  if (!urlDatabase[shortUrlInReq]) {
     const user = users[req.cookies["user_id"]];
     const error = errMsg.shortURLnotExist;
     const templateVars = { 
@@ -225,7 +228,7 @@ app.get("/u/:shortURL", (req, res) => {
     };
     return res.render("error", templateVars)
   }
-  const longURL = urlDatabase[req.params.shortURL].longURL;
+  const longURL = urlDatabase[shortUrlInReq].longURL;
   res.redirect(longURL);
 });
 
