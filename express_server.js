@@ -31,7 +31,14 @@ const users = {
 };
 
 const errMsg = {
-  "notLoggedIn" : "Please log in to access this content."
+  "notLoggedIn" : {
+    title: "Permission Denied",
+    detail: "Please log in to access this content."
+  },
+  "shortURLnotExist": {
+    title: "Invalid Short URL",
+    detail: "Please double check the short URL exists."
+  }
 }
 
 // Helper functions
@@ -169,9 +176,10 @@ app.get("/urls/new", (req, res) => {
 app.post("/urls", (req, res) => {
   const user = users[req.cookies["user_id"]];
   if (!user) {
+    const error = errMsg.notLoggedIn;
     const templateVars = { 
       user,
-      errMsg
+      error
     };
     return res.render("error", templateVars)
   }
@@ -207,6 +215,16 @@ app.post("/urls/:shortURL", (req, res) => {
 
 // Redirecting to the corresponding long URL
 app.get("/u/:shortURL", (req, res) => {
+  const shortURLinReq = req.params.shortURL;
+  if (!urlDatabase[shortURLinReq]) {
+    const user = users[req.cookies["user_id"]];
+    const error = errMsg.shortURLnotExist;
+    const templateVars = { 
+      user,
+      error
+    };
+    return res.render("error", templateVars)
+  }
   const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
