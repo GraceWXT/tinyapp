@@ -50,19 +50,20 @@ const urlsForUser = function(id, urlDatabase) {
   return list;
 };
 
+const userNotLoggedIn = (errMsg, user) => {
+  if (!user) {
+    const error = errMsg.notLoggedIn;
+    const templateVars = { user, error };
+    return templateVars;
+  }
+  return null;
+};
+
+
+
 const handleError = function(errorType, res, user, shortUrlInReq = undefined) {
   switch (errorType) {
-  case "notLoggedIn":
-    if (!user) {
-      const error = errMsg.notLoggedIn;
-      const templateVars = {
-        user,
-        error
-      };
-      return res.render("error", templateVars);
-    }
-    break;
-  case "shortURLnotExist":
+    case "shortURLnotExist":
     if (!urlDatabase[shortUrlInReq]) {
       const error = errMsg.shortURLnotExist;
       const templateVars = {
@@ -85,4 +86,4 @@ const handleError = function(errorType, res, user, shortUrlInReq = undefined) {
   }
 };
 
-module.exports = { User, ShortURL, generateRandomString, findUserByEmail, urlsForUser, handleError }
+module.exports = { User, ShortURL, generateRandomString, findUserByEmail, urlsForUser, userNotLoggedIn }
