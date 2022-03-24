@@ -4,6 +4,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const bcrypt = require('bcryptjs');
 
 //
 // Config
@@ -36,7 +37,7 @@ const users = {
   "admin": {
     id: "admin",
     email: "a@a.com",
-    password: "123"
+    hashedPassword: bcrypt.hashSync("123")
   }
 };
 
@@ -60,10 +61,10 @@ const errMsg = {
 //
 class User {
 
-  constructor(id, email, password) {
+  constructor(id, email, hashedPassword) {
     this.id = id;
     this.email = email;
-    this.password = password;
+    this.hashedPassword = hashedPassword;
   }
 
 }
@@ -162,16 +163,16 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  const inputEmail = req.body.email;
-  const inputPassword = req.body.password;
-  if (inputEmail === "" || inputPassword === "") {
+  const { email, password } = req.body;
+  if (email === "" || password === "") {
     return res.sendStatus(400);
   }
-  if (findUserByEmail(inputEmail)) {
+  if (findUserByEmail(email)) {
     return res.sendStatus(400);
   }
   const userID = generateRandomString(4);
-  const newUser = new User(userID, inputEmail, inputPassword);
+  hashedPassword = bcrypt.hashSync(password);
+  const newUser = new User(userID, email, hashedPassword);
   users[userID] = newUser;
   // console.log(users);   // To test the users object is properly being appended to
   res.cookie("user_id", `${userID}`);
@@ -189,14 +190,13 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  const inputEmail = req.body.email;
-  const inputPassword = req.body.password;
-  const user = findUserByEmail(inputEmail);
+  const { email, password } = req.body;
+  const user = findUserByEmail(email);
   if (!user) {
     return res.sendStatus(403);
   }
-  const expectedPassword = user.password;
-  if (inputPassword !== expectedPassword) {
+  const passwordMatches = bcrypt.compareSync(password, user.hashedPassword);
+  if (!passwordMatches) {
     return res.sendStatus(403);
   }
   res.cookie("user_id", `${user.id}`);
