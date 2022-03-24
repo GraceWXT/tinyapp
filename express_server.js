@@ -139,6 +139,9 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 // Submitting new long URL shortening request
 app.get("/urls/new", (req, res) => {
   const user = users[req.cookies["user_id"]];
+  if (!user) {
+    return res.redirect("/login")
+  }
   const templateVars = { user };
   res.render("urls_new", templateVars);
 });
