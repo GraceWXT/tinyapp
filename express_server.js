@@ -163,6 +163,14 @@ app.post("/logout", (req, res) => {
 // Viewing the list of URLs
 app.get("/urls", (req, res) => {
   const user = users[req.cookies["user_id"]];
+  if (!user) {
+    const error = errMsg.notLoggedIn;
+    const templateVars = { 
+      user,
+      error
+    };
+    return res.render("error", templateVars)
+  }
   const templateVars = {
     user,
     urlDatabase
