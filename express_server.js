@@ -3,6 +3,7 @@
 //
 const express = require("express");
 const bodyParser = require("body-parser");
+const cookieSession = require('cookie-session')
 const bcrypt = require('bcryptjs');
 
 //
@@ -16,7 +17,13 @@ app.set("view engine", "ejs");
 // Middleware
 //
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser());
+app.use(cookieSession({
+  name: 'user_id',
+  keys: ["WhuRJ9gaZ2", "UiR57Ijf7V", "HyD60Aqac5"],
+
+  // Cookie Options
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}));
 
 //
 // Database
