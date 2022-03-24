@@ -22,10 +22,10 @@
         </tr>
       </thead>
       <tbody>
-        <% for(let shortUrl in urlDatabase) { %>
+        <% for(let shortUrl in urlList) { %>
           <tr>
             <td><%= shortUrl %></td>
-            <td><%= urlDatabase[shortUrl].longURL %></td>
+            <td><%= urlList[shortUrl].longURL %></td>
             <td>
               <form method="GET" action="/urls/<%= shortUrl %>">
                 <button type="submit" class="btn btn-outline-primary">Edit</button>

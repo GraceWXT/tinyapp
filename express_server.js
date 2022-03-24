@@ -48,6 +48,10 @@ const errMsg = {
   "shortURLnotExist": {
     title: "Invalid Short URL",
     detail: "Please double check the short URL exists."
+  },
+  "UrlNotOwned": {
+    title: "Permission Denied",
+    detail: "You don't have access to this content."
   }
 }
 
@@ -90,6 +94,16 @@ const findUserByEmail = function(email) {
   }
 };
 
+const urlsForUser = function(id) {
+  let list = {};
+  for (let shortURL in urlDatabase) {
+    let url = urlDatabase[shortURL];
+    if (url.userID === id) {
+      list[shortURL] = url;
+    }
+  }
+  return list;
+}
 //
 // Routes
 //
@@ -171,9 +185,10 @@ app.get("/urls", (req, res) => {
     };
     return res.render("error", templateVars)
   }
+  const urlList = urlsForUser(user.id);
   const templateVars = {
     user,
-    urlDatabase
+    urlList
   };
   res.render("urls_index", templateVars);
 });
@@ -216,7 +231,31 @@ app.post("/urls", (req, res) => {
 // View for a specific short URL & Updating form
 app.get("/urls/:shortURL", (req, res) => {
   const user = users[req.cookies["user_id"]];
+  if (!user) {
+    const error = errMsg.notLoggedIn;
+    const templateVars = { 
+      user,
+      error
+    };
+    return res.render("error", templateVars)
+  }
   const shortUrlInReq = req.params.shortURL;
+  if (!urlDatabase[shortUrlInReq]) {
+    const error = errMsg.shortURLnotExist;
+    const templateVars = { 
+      user,
+      error
+    };
+    return res.render("error", templateVars)
+  }
+  if (urlDatabase[shortUrlInReq].userId !== user.id) {
+    const error = errMsg.UrlNotOwned;
+    const templateVars = { 
+      user,
+      error
+    };
+    return res.render("error", templateVars)
+  }
   const templateVars = {
     user,
     shortURL: shortUrlInReq,
