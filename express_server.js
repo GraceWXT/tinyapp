@@ -24,6 +24,10 @@ const users = {
   }
 };
 
+const errMsg = {
+  "notLoggedIn" : "Please log in to access this content."
+}
+
 // Helper functions
 class User {
 
@@ -148,6 +152,11 @@ app.get("/urls/new", (req, res) => {
 
 // Generating Short URLs
 app.post("/urls", (req, res) => {
+  const user = users[req.cookies["user_id"]];
+  if (!user) {
+    const templateVars = { errMsg };
+    return res.render("error", templateVars)
+  }
   const shortURL = generateRandomString(6);
   urlDatabase[shortURL] = req.body.longURL;  // saves the shortURL-longURL key-value pair to the urlDatabase object
   res.redirect(`/urls/${shortURL}`);         // Respond with a redirect to /urls/:shortURL
