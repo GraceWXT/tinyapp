@@ -19,10 +19,7 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   name: 'user_id',
-  keys: ["WhuRJ9gaZ2", "UiR57Ijf7V", "HyD60Aqac5"],
-
-  // Cookie Options
-  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  keys: ["WhuRJ9gaZ2", "UiR57Ijf7V", "HyD60Aqac5"]
 }));
 
 //
@@ -94,11 +91,13 @@ const generateRandomString = function(length) {
 };
 
 const findUserByEmail = function(email) {
-  for (let id in users) {
-    if (email === users[id].email) {
-      return users[id];
+  const members = Object.values(users)
+  for (let user of members) {
+    if (email === user.email) {
+      return user;
     }
   }
+  return null;
 };
 
 const urlsForUser = function(id) {
@@ -151,7 +150,7 @@ const handleError = function(errorType, res, user, shortUrlInReq = undefined) {
 //
 // Homepage
 app.get("/", (req, res) => {
-  const user = users[req.cookies["user_id"]];
+  const user = users[req.session.user_id];
   if (user) {
     return res.redirect("/urls");
   }
@@ -160,7 +159,7 @@ app.get("/", (req, res) => {
 
 // User Registration
 app.get("/register", (req, res) => {
-  const user = users[req.cookies["user_id"]];
+  const user = users[req.session.user_id];
   if (user) {
     return res.redirect("/urls");
   }
@@ -173,7 +172,8 @@ app.post("/register", (req, res) => {
   if (email === "" || password === "") {
     return res.sendStatus(400);
   }
-  if (findUserByEmail(email)) {
+  const user = findUserByEmail(email);
+  if (user) {
     return res.sendStatus(400);
   }
   const userID = generateRandomString(4);
@@ -181,13 +181,13 @@ app.post("/register", (req, res) => {
   const newUser = new User(userID, email, hashedPassword);
   users[userID] = newUser;
   // console.log(users);   // To test the users object is properly being appended to
-  res.cookie("user_id", `${userID}`);
+  req.session.user_id = userID;
   res.redirect("/urls");
 });
 
 // User Login
 app.get("/login", (req, res) => {
-  const user = users[req.cookies["user_id"]];
+  const user = users[req.session.user_id];
   if (user) {
     return res.redirect("/urls");
   }
@@ -205,19 +205,19 @@ app.post("/login", (req, res) => {
   if (!passwordMatches) {
     return res.sendStatus(403);
   }
-  res.cookie("user_id", `${user.id}`);
+  req.session.user_id = user.id;
   res.redirect("/urls");
 });
 
 // User Logout
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
+  req.session = null;
   res.redirect("/urls");
 });
 
 // Viewing the list of URLs
 app.get("/urls", (req, res) => {
-  const user = users[req.cookies["user_id"]];
+  const user = users[req.session.user_id];
   handleError("notLoggedIn", res, user);
   const urlList = urlsForUser(user.id);
   const templateVars = {
@@ -229,7 +229,7 @@ app.get("/urls", (req, res) => {
 
 // Handling delete request of a certain URL in the list
 app.post("/urls/:shortURL/delete", (req, res) => {
-  const user = users[req.cookies["user_id"]];
+  const user = users[req.session.user_id];
   handleError("notLoggedIn", res, user);
   const shortUrlInReq = req.params.shortURL;
   handleError("shortURLnotExist", res, user, shortUrlInReq);
@@ -240,7 +240,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 // Submitting new long URL shortening request
 app.get("/urls/new", (req, res) => {
-  const user = users[req.cookies["user_id"]];
+  const user = users[req.session.user_id];
   if (!user) {
     return res.redirect("/login");
   }
@@ -250,7 +250,7 @@ app.get("/urls/new", (req, res) => {
 
 // Generating Short URLs
 app.post("/urls", (req, res) => {
-  const user = users[req.cookies["user_id"]];
+  const user = users[req.session.user_id];
   handleError("notLoggedIn", res, user);
   const shortURL = generateRandomString(6);
   const longURL = req.body.longURL;
@@ -261,7 +261,7 @@ app.post("/urls", (req, res) => {
 
 // View for a specific short URL & Updating form
 app.get("/urls/:shortURL", (req, res) => {
-  const user = users[req.cookies["user_id"]];
+  const user = users[req.session.user_id];
   handleError("notLoggedIn", res, user);
   const shortUrlInReq = req.params.shortURL;
   handleError("shortURLnotExist", res, user, shortUrlInReq);
@@ -276,7 +276,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // Handling long URL update
 app.post("/urls/:shortURL", (req, res) => {
-  const user = users[req.cookies["user_id"]];
+  const user = users[req.session.user_id];
   handleError("notLoggedIn", res, user);
   const shortUrlInReq = req.params.shortURL;
   handleError("shortURLnotExist", res, user, shortUrlInReq);
@@ -292,7 +292,7 @@ app.post("/urls/:shortURL", (req, res) => {
 
 // Redirecting to the corresponding long URL
 app.get("/u/:shortURL", (req, res) => {
-  const user = users[req.cookies["user_id"]];
+  const user = users[req.session.user_id];
   const shortUrlInReq = req.params.shortURL;
   handleError("shortURLnotExist", res, user, shortUrlInReq);
   const longURL = urlDatabase[shortUrlInReq].longURL;
