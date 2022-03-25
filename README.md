@@ -75,7 +75,7 @@ A full stack web app built with Node and Express that allows users to shorten lo
 - `POST /urls/:id`
   - if user is logged in and owns the URL for the given ID:
     - [x] updates the URL
-    - [ ] redirects to `/urls`
+    - [x] redirects to `/urls`
   - if user is not logged in:
     - [x] (Minor) returns HTML with a relevant error message
   - if user is logged in but does not own the URL for the given ID:
