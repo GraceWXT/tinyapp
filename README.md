@@ -1,9 +1,30 @@
-# Project Description
+# TinyApp Project
+
+## Project Description
 
 A full stack web app built with Node and Express that allows users to shorten long URLs (à la bit.ly). The project takes up four days of week 3 in the Lighthouse Labs web development bootcamp. 
 
-# Functional Requirements
-## Display Requirements
+## Final Product
+
+!["screenshot of URLs page"](https://raw.githubusercontent.com/GraceWXT/tinyapp/789f18955eab656bc3b82553c5164aba6fa34b67/docs/urls-page.jpg)
+!["screenshot of URL detail & update page"](https://raw.githubusercontent.com/GraceWXT/tinyapp/789f18955eab656bc3b82553c5164aba6fa34b67/docs/edit-url-page.jpg)
+
+## Dependencies
+
+- Node.js
+- Express
+- EJS
+- bcrypt
+- body-parser
+- cookie-session
+
+## Getting Started
+
+- Install all dependencies (using the `npm install` command).
+- Run the development web server using the `node express_server.js` command.
+
+## Functional Requirements
+### Display Requirements
 
 - Site Header
   - If a user is logged in, the header shows:
@@ -13,7 +34,7 @@ A full stack web app built with Node and Express that allows users to shorten lo
     - [x] a link to the login page (`/login`)
     - [x] a link to the registration page (`/register`)
 
-## Behaviour Requirements
+### Behaviour Requirements
 
 - `GET /`
   - If user is logged in:
