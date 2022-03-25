@@ -66,10 +66,10 @@ const errMsg = {
 // Homepage
 app.get("/", (req, res) => {
   const user = users[req.session.userID];
-  if (user) {
-    return res.redirect("/urls");
+  if (notLoggedIn(user)) {
+    return res.redirect("/login");
   }
-  res.send("Hello!");
+  return res.redirect("/urls");
 });
 
 // User Registration

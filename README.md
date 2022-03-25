@@ -19,7 +19,7 @@ A full stack web app built with Node and Express that allows users to shorten lo
   - If user is logged in:
     - [x] (Minor) redirect to `/urls`
   - If user is not logged in:
-    - [ ] (Minor) redirect to `/login`
+    - [x] (Minor) redirect to `/login`
 - `GET /urls`
   - If user is logged in:
     - returns HTML with:
