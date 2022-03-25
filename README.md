@@ -22,6 +22,7 @@ A full stack web app built with Node and Express that allows users to shorten lo
 
 - Install all dependencies (using the `npm install` command).
 - Run the development web server using the `node express_server.js` command.
+- Access the site from a brower: http://localhost:8080/
 
 ## Functional Requirements
 ### Display Requirements
