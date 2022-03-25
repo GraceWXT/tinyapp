@@ -230,12 +230,7 @@ app.post("/urls/:shortURL", (req, res) => {
     return res.render("error", {error, user});
   }
   urlDatabase[shortURL].longURL = req.body.longURL;
-  const templateVars = {
-    user,
-    shortURL,
-    longURL: urlDatabase[shortURL].longURL
-  };
-  res.render("urls_show", templateVars);   // final requirement is redirect?
+  res.redirect("/urls");
 });
 
 // Redirecting to the corresponding long URL

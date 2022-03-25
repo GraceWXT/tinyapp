@@ -32,7 +32,7 @@ A full stack web app built with Node and Express that allows users to shorten lo
       - [ ] (Stretch) the date the short URL was created
       - [ ] (Stretch) the number of times the short URL was visited
       - [ ] (Stretch) the number of unique visits for the short URL
-    - [ ] (Minor) a link to "Create a New Short Link" which makes a GET request to `/urls/new`
+    - [x] (Minor) a link to "Create a New Short Link" which makes a GET request to `/urls/new`
   - If user is not logged in:
     - [x] returns HTML with a relevant error message
 - `GET /urls/new`
