@@ -46,9 +46,21 @@ const users = {
 };
 
 const errMsg = {
-  "notLoggedIn" : {
+  "notLoggedIn": {
     title: "Permission Denied",
     detail: "Please log in to access this content."
+  },
+  "wrongCredentials": {
+    title: "Wrong Credentials",
+    detail: "Please try again."
+  },
+  "invalidInput": {
+    title: "Invalid Input",
+    detail: "Please try again."
+  },
+  "emailExists": {
+    title: "Email Exists",
+    detail: "Please try logging in with this email."
   },
   "shortURLnotExist": {
     title: "Invalid Short URL",
@@ -78,18 +90,19 @@ app.get("/register", (req, res) => {
   if (user) {
     return res.redirect("/urls");
   }
-  const templateVars = { user };    //Need to pass user to all the templates that includes the header partial
-  res.render("register", templateVars);
+  res.render("register", { user });
 });
 
 app.post("/register", (req, res) => {
+  const user = users[req.session.userID];
   const { email, password } = req.body;
   if (email === "" || password === "") {
-    return res.sendStatus(400);
+    const error = errMsg.invalidInput;
+    return res.render("error", {error, user});
   }
-  const user = findUserByEmail(email, users);
-  if (user) {
-    return res.sendStatus(400);
+  if (findUserByEmail(email, users)) {
+    const error = errMsg.emailExists;
+    return res.render("error", {error, user});
   }
   const userID = generateRandomString(4);
   const hashedPassword = bcrypt.hashSync(password);
@@ -106,19 +119,21 @@ app.get("/login", (req, res) => {
   if (user) {
     return res.redirect("/urls");
   }
-  const templateVars = { user };
-  res.render("login", templateVars);
+  res.render("login", { user });
 });
 
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
   const user = findUserByEmail(email, users);
   if (!user) {
-    return res.sendStatus(403);
+    const error = errMsg.wrongCredentials;
+    return res.render("error", {error, user});
   }
   const passwordMatches = bcrypt.compareSync(password, user.hashedPassword);
   if (!passwordMatches) {
-    return res.sendStatus(403);
+    const user = users[req.session.userID]
+    const error = errMsg.wrongCredentials;
+    return res.render("error", {error, user});
   }
   req.session.userID = user.id;
   res.redirect("/urls");
@@ -138,11 +153,7 @@ app.get("/urls", (req, res) => {
     return res.render("error", {error, user});
   }
   const urlList = urlsForUser(user.id, urlDatabase);
-  const templateVars = {
-    user,
-    urlList
-  };
-  res.render("urls_index", templateVars);
+  res.render("urls_index", { user, urlList });
 });
 
 // Handling delete request of a certain URL in the list
@@ -171,8 +182,7 @@ app.get("/urls/new", (req, res) => {
   if (!user) {
     return res.redirect("/login");
   }
-  const templateVars = { user };
-  res.render("urls_new", templateVars);
+  res.render("urls_new", { user });
 });
 
 // Generating Short URLs

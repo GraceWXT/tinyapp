@@ -107,12 +107,12 @@ A full stack web app built with Node and Express that allows users to shorten lo
     - [x] sets a cookie
     - [x] redirects to `/urls`
   - if email and password params don't match an existing user:
-    - [-] returns HTML with a relevant error message
+    - [x] returns HTML with a relevant error message
 - `POST /register`
   - if email or password are empty:
-    - [-] returns HTML with a relevant error message
+    - [x] returns HTML with a relevant error message
   - if email already exists:
-    - [-] returns HTML with a relevant error message
+    - [x] returns HTML with a relevant error message
   - otherwise:
     - [x] creates a new user
     - [x] encrypts the new user's password with `crypt`
