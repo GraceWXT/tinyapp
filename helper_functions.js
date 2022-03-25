@@ -30,7 +30,7 @@ const generateRandomString = function(length) {
 };
 
 const findUserByEmail = function(email, users) {
-  const members = Object.values(users)
+  const members = Object.values(users);
   for (let user of members) {
     if (email === user.email) {
       return user;
@@ -72,4 +72,4 @@ const urlNotOwned = (shortURL, user, urlDatabase) => {
 };
 
 
-module.exports = { User, ShortURL, generateRandomString, findUserByEmail, urlsForUser, notLoggedIn, shortURLnotExist, urlNotOwned }
+module.exports = { User, ShortURL, generateRandomString, findUserByEmail, urlsForUser, notLoggedIn, shortURLnotExist, urlNotOwned };

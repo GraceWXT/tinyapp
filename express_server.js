@@ -157,7 +157,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
     const error = errMsg.shortURLnotExist;
     return res.render("error", {error, user});
   }
-  if(urlNotOwned(shortURL, user, urlDatabase)) {
+  if (urlNotOwned(shortURL, user, urlDatabase)) {
     const error = errMsg.urlNotOwned;
     return res.render("error", {error, user});
   }
@@ -201,7 +201,7 @@ app.get("/urls/:shortURL", (req, res) => {
     const error = errMsg.shortURLnotExist;
     return res.render("error", {error, user});
   }
-  if(urlNotOwned(shortURL, user, urlDatabase)) {
+  if (urlNotOwned(shortURL, user, urlDatabase)) {
     const error = errMsg.urlNotOwned;
     return res.render("error", {error, user});
   }
@@ -225,7 +225,7 @@ app.post("/urls/:shortURL", (req, res) => {
     const error = errMsg.shortURLnotExist;
     return res.render("error", {error, user});
   }
-  if(urlNotOwned(shortURL, user, urlDatabase)) {
+  if (urlNotOwned(shortURL, user, urlDatabase)) {
     const error = errMsg.urlNotOwned;
     return res.render("error", {error, user});
   }
