@@ -106,9 +106,7 @@ app.post("/register", (req, res) => {
   }
   const userID = generateRandomString(4);
   const hashedPassword = bcrypt.hashSync(password);
-  const newUser = new User(userID, email, hashedPassword);
-  users[userID] = newUser;
-  // console.log(users);   // To test the users object is properly being appended to
+  users[userID] = new User(userID, email, hashedPassword);;
   req.session.userID = userID;
   res.redirect("/urls");
 });
@@ -131,7 +129,7 @@ app.post("/login", (req, res) => {
   }
   const passwordMatches = bcrypt.compareSync(password, user.hashedPassword);
   if (!passwordMatches) {
-    const user = users[req.session.userID]
+    const user = users[req.session.userID];
     const error = errMsg.wrongCredentials;
     return res.render("error", {error, user});
   }
@@ -195,7 +193,6 @@ app.post("/urls", (req, res) => {
   const shortURL = generateRandomString(6);
   const longURL = req.body.longURL;
   urlDatabase[shortURL] = new ShortURL(longURL, user.id);
-  // console.log(urlDatabase); // To test the urlDatabse object is properly updated
   res.redirect(`/urls/${shortURL}`);
 });
 
@@ -253,10 +250,6 @@ app.get("/u/:shortURL", (req, res) => {
   }
   const longURL = urlDatabase[shortURL].longURL;
   res.redirect(longURL);
-});
-
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
 });
 
 app.get("/hello", (req, res) => {
