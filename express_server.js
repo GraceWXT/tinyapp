@@ -5,7 +5,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcryptjs');
-const { User, ShortURL, generateRandomString, findUserByEmail, urlsForUser, userNotLoggedIn } = require("./helper_functions");
+const { User, ShortURL, generateRandomString, findUserByEmail, urlsForUser, notLoggedIn, shortURLnotExist, urlNotOwned } = require("./helper_functions");
 
 //
 // Config
@@ -54,7 +54,7 @@ const errMsg = {
     title: "Invalid Short URL",
     detail: "Please double check the short URL exists."
   },
-  "UrlNotOwned": {
+  "urlNotOwned": {
     title: "Permission Denied",
     detail: "You don't have access to this content."
   }
@@ -133,8 +133,9 @@ app.post("/logout", (req, res) => {
 // Viewing the list of URLs
 app.get("/urls", (req, res) => {
   const user = users[req.session.userID];
-  if (userNotLoggedIn(errMsg, user)) {
-    return res.render("error", userNotLoggedIn(errMsg, user));
+  if (notLoggedIn(user)) {
+    const error = errMsg.notLoggedIn;
+    return res.render("error", {error, user});
   }
   const urlList = urlsForUser(user.id, urlDatabase);
   const templateVars = {
@@ -147,13 +148,20 @@ app.get("/urls", (req, res) => {
 // Handling delete request of a certain URL in the list
 app.post("/urls/:shortURL/delete", (req, res) => {
   const user = users[req.session.userID];
-  if (userNotLoggedIn(errMsg, user)) {
-    return res.render("error", userNotLoggedIn(errMsg, user));
+  if (notLoggedIn(user)) {
+    const error = errMsg.notLoggedIn;
+    return res.render("error", {error, user});
   }
-  const shortUrlInReq = req.params.shortURL;
-  handleError("shortURLnotExist", res, user, shortUrlInReq);
-  handleError("UrlNotOwned", res, user, shortUrlInReq);
-  delete urlDatabase[shortUrlInReq];
+  const { shortURL } = req.params;
+  if (shortURLnotExist(shortURL, urlDatabase)) {
+    const error = errMsg.shortURLnotExist;
+    return res.render("error", {error, user});
+  }
+  if(urlNotOwned(shortURL, user, urlDatabase)) {
+    const error = errMsg.urlNotOwned;
+    return res.render("error", {error, user});
+  }
+  delete urlDatabase[shortURL];
   res.redirect("/urls");
 });
 
@@ -170,8 +178,9 @@ app.get("/urls/new", (req, res) => {
 // Generating Short URLs
 app.post("/urls", (req, res) => {
   const user = users[req.session.userID];
-  if (userNotLoggedIn(errMsg, user)) {
-    return res.render("error", userNotLoggedIn(errMsg, user));
+  if (notLoggedIn(user)) {
+    const error = errMsg.notLoggedIn;
+    return res.render("error", {error, user});
   }
   const shortURL = generateRandomString(6);
   const longURL = req.body.longURL;
@@ -183,16 +192,23 @@ app.post("/urls", (req, res) => {
 // View for a specific short URL & Updating form
 app.get("/urls/:shortURL", (req, res) => {
   const user = users[req.session.userID];
-  if (userNotLoggedIn(errMsg, user)) {
-    return res.render("error", userNotLoggedIn(errMsg, user));
+  if (notLoggedIn(user)) {
+    const error = errMsg.notLoggedIn;
+    return res.render("error", {error, user});
   }
-  const shortUrlInReq = req.params.shortURL;
-  handleError("shortURLnotExist", res, user, shortUrlInReq);
-  handleError("UrlNotOwned", res, user, shortUrlInReq);
+  const { shortURL } = req.params;
+  if (shortURLnotExist(shortURL, urlDatabase)) {
+    const error = errMsg.shortURLnotExist;
+    return res.render("error", {error, user});
+  }
+  if(urlNotOwned(shortURL, user, urlDatabase)) {
+    const error = errMsg.urlNotOwned;
+    return res.render("error", {error, user});
+  }
   const templateVars = {
     user,
-    shortURL: shortUrlInReq,
-    longURL: urlDatabase[shortUrlInReq].longURL
+    shortURL,
+    longURL: urlDatabase[shortURL].longURL
   };
   res.render("urls_show", templateVars);
 });
@@ -200,17 +216,24 @@ app.get("/urls/:shortURL", (req, res) => {
 // Handling long URL update
 app.post("/urls/:shortURL", (req, res) => {
   const user = users[req.session.userID];
-  if (userNotLoggedIn(errMsg, user)) {
-    return res.render("error", userNotLoggedIn(errMsg, user));
+  if (notLoggedIn(user)) {
+    const error = errMsg.notLoggedIn;
+    return res.render("error", {error, user});
   }
-  const shortUrlInReq = req.params.shortURL;
-  handleError("shortURLnotExist", res, user, shortUrlInReq);
-  handleError("UrlNotOwned", res, user, shortUrlInReq);
-  urlDatabase[shortUrlInReq].longURL = req.body.longURL;
+  const { shortURL } = req.params;
+  if (shortURLnotExist(shortURL, urlDatabase)) {
+    const error = errMsg.shortURLnotExist;
+    return res.render("error", {error, user});
+  }
+  if(urlNotOwned(shortURL, user, urlDatabase)) {
+    const error = errMsg.urlNotOwned;
+    return res.render("error", {error, user});
+  }
+  urlDatabase[shortURL].longURL = req.body.longURL;
   const templateVars = {
     user,
-    shortURL: shortUrlInReq,
-    longURL: urlDatabase[shortUrlInReq].longURL
+    shortURL,
+    longURL: urlDatabase[shortURL].longURL
   };
   res.render("urls_show", templateVars);   // final requirement is redirect?
 });
@@ -218,9 +241,12 @@ app.post("/urls/:shortURL", (req, res) => {
 // Redirecting to the corresponding long URL
 app.get("/u/:shortURL", (req, res) => {
   const user = users[req.session.userID];
-  const shortUrlInReq = req.params.shortURL;
-  handleError("shortURLnotExist", res, user, shortUrlInReq);
-  const longURL = urlDatabase[shortUrlInReq].longURL;
+  const { shortURL } = req.params;
+  if (shortURLnotExist(shortURL, urlDatabase)) {
+    const error = errMsg.shortURLnotExist;
+    return res.render("error", {error, user});
+  }
+  const longURL = urlDatabase[shortURL].longURL;
   res.redirect(longURL);
 });
 

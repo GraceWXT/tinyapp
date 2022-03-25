@@ -50,40 +50,26 @@ const urlsForUser = function(id, urlDatabase) {
   return list;
 };
 
-const userNotLoggedIn = (errMsg, user) => {
+const notLoggedIn = (user) => {
   if (!user) {
-    const error = errMsg.notLoggedIn;
-    const templateVars = { user, error };
-    return templateVars;
+    return true;
   }
-  return null;
+  return false;
+};
+
+const shortURLnotExist = (shortURL, urlDatabase) => {
+  if (!urlDatabase[shortURL]) {
+    return true;
+  }
+  return false;
+};
+
+const urlNotOwned = (shortURL, user, urlDatabase) => {
+  if (urlDatabase[shortURL].userID !== user.id) {
+    return true;
+  }
+  return false;
 };
 
 
-
-const handleError = function(errorType, res, user, shortUrlInReq = undefined) {
-  switch (errorType) {
-    case "shortURLnotExist":
-    if (!urlDatabase[shortUrlInReq]) {
-      const error = errMsg.shortURLnotExist;
-      const templateVars = {
-        user,
-        error
-      };
-      return res.render("error", templateVars);
-    }
-    break;
-  case "UrlNotOwned":
-    if (urlDatabase[shortUrlInReq].userID !== user.id) {
-      const error = errMsg.UrlNotOwned;
-      const templateVars = {
-        user,
-        error
-      };
-      return res.render("error", templateVars);
-    }
-    break;
-  }
-};
-
-module.exports = { User, ShortURL, generateRandomString, findUserByEmail, urlsForUser, userNotLoggedIn }
+module.exports = { User, ShortURL, generateRandomString, findUserByEmail, urlsForUser, notLoggedIn, shortURLnotExist, urlNotOwned }
