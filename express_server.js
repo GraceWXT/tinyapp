@@ -106,7 +106,7 @@ app.post("/register", (req, res) => {
   }
   const userID = generateRandomString(4);
   const hashedPassword = bcrypt.hashSync(password);
-  users[userID] = new User(userID, email, hashedPassword);;
+  users[userID] = new User(userID, email, hashedPassword);
   req.session.userID = userID;
   res.redirect("/urls");
 });
